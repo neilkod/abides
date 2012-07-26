@@ -1,3 +1,7 @@
+#!/bin/python
+
+# I don't know about you but I take comfort in that.
+
 import bson, datetime, ConfigParser, random, os
 import logging, urllib2, sys
 import pymongo, tweepy
