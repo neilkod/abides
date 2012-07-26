@@ -1,13 +1,12 @@
-import bson, datetime, ConfigParser, random
+import bson, datetime, ConfigParser, random, os
 import logging, urllib2, sys
 import pymongo, tweepy
 
 CONFIG = sys.argv[1]
 screen_name = sys.argv[2]
-logging.basicConfig(format='%(asctime)s %(message)s', filename='run_log/auto_tweet.out',
-  datefmt='%m/%d/%Y %H:%M:%S', level=logging.DEBUG)
-logging.info('screen name is %s', screen_name)
-logging.info('configuration file: %s', CONFIG)
+# create the log dir if it doesn't already exist
+
+
 
 
 OLD_DATE = datetime.datetime(1900,01,01)
@@ -39,8 +38,29 @@ def read_file(data_file):
   data = urllib2.urlopen(data_file).readlines()
   return data
 
+# read the config
 config = ConfigParser.ConfigParser()
 config.readfp(open(CONFIG))
+
+# initialize logging and the logging directory
+# create the log dir if it doesn't already exist
+# if we can't create the log dir, use /tmp
+log_file_dest = os.path.join(os.getcwd(), config.get('logging','log_file_dir'))
+
+if not os.path.isdir(log_file_dest):
+    try:
+      os.makedirs(log_file_dest)
+    except OSError as e:
+      print "WARN: couldn't create {0}: {1}. Logging to /tmp".format(log_file_dest, e)
+      log_file_dest = '/tmp'
+
+log_file = os.path.join(log_file_dest, config.get('logging','log_file_name'))
+
+logging.basicConfig(format='%(asctime)s %(message)s', filename=log_file,
+  datefmt='%m/%d/%Y %H:%M:%S', level=logging.DEBUG)
+
+logging.info('screen name is %s', screen_name)
+logging.info('configuration file: %s', CONFIG)
 data_file = config.get(screen_name, 'datafile_url')
 mc = mongo_config(config)
 
