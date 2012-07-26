@@ -2,12 +2,9 @@ import bson, datetime, ConfigParser, random, os
 import logging, urllib2, sys
 import pymongo, tweepy
 
+#TODO: use optionparser instead of sys.argv
 CONFIG = sys.argv[1]
 screen_name = sys.argv[2]
-# create the log dir if it doesn't already exist
-
-
-
 
 OLD_DATE = datetime.datetime(1900,01,01)
 E = .6
@@ -45,6 +42,9 @@ config.readfp(open(CONFIG))
 # initialize logging and the logging directory
 # create the log dir if it doesn't already exist
 # if we can't create the log dir, use /tmp
+# note: i haven't tested since making the logging parms 
+#        reading from the config file 
+
 log_file_dest = os.path.join(os.getcwd(), config.get('logging','log_file_dir'))
 
 if not os.path.isdir(log_file_dest):
@@ -55,7 +55,6 @@ if not os.path.isdir(log_file_dest):
       log_file_dest = '/tmp'
 
 log_file = os.path.join(log_file_dest, config.get('logging','log_file_name'))
-
 logging.basicConfig(format='%(asctime)s %(message)s', filename=log_file,
   datefmt='%m/%d/%Y %H:%M:%S', level=logging.DEBUG)
 
@@ -66,15 +65,13 @@ mc = mongo_config(config)
 
 conn = pymongo.Connection(mc.url)
 
-# learn how to make this dynamic
+
 logging.info('mongodb database is %s', mc.db)
 
 db = conn[mc.db]
 
 logging.info("mongodb collection is %s", mc.collection)
 coll=db[mc.collection]
-
-
 
 # read the file, in this case its from a dropbox URL
 itms = read_file(data_file)
